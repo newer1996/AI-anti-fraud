@@ -35,7 +35,7 @@ class VectorStoreIndex:
     class for VectorStoreIndex
     """
 
-    def __init__(self, doecment_path: str, embed_model: EmbeddingModel) -> None:
+    def __init__(self, doecment_path: List, embed_model: EmbeddingModel) -> None:
         self.documents = []
         for doc in doecment_path:
             for line in open(doc, 'r', encoding='utf-8'):
