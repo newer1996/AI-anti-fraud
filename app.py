@@ -23,7 +23,10 @@ def getMessageInfo(): #传递文字信息
 
     #ragRes = ragResults(embed_model_path, doecment_path)
     respMessage = ragResults(embed_model_path, doecment_path, model_path, data)
-    return respMessage
+    data_json = {}
+    data_json['status'] = 'success'
+    data_json['message'] = respMessage
+    return data_json
 
 @app.route('/pictureMessage')
 def getPictureInfo():
