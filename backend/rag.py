@@ -37,9 +37,10 @@ class VectorStoreIndex:
 
     def __init__(self, doecment_path: str, embed_model: EmbeddingModel) -> None:
         self.documents = []
-        for line in open(doecment_path, 'r', encoding='utf-8'):
-            line = line.strip()
-            self.documents.append(line)
+        for doc in doecment_path:
+            for line in open(doc, 'r', encoding='utf-8'):
+                line = line.strip()
+                self.documents = self.documents + line
 
         self.embed_model = embed_model
         self.vectors = self.embed_model.get_embeddings(self.documents)
