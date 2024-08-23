@@ -39,9 +39,10 @@ class VectorStoreIndex:
     def __init__(self, document_dir: str, document_path: List, embed_model: EmbeddingModel) -> None:
         self.documents = []
         for doc in document_path:
+            #print(os.path.join(document_dir, doc))
             for line in open(os.path.join(document_dir, doc), 'r', encoding='utf-8'):
                 line = line.strip()
-                self.documents = self.documents + line
+                self.documents.append(line)
 
         self.embed_model = embed_model
         self.vectors = self.embed_model.get_embeddings(self.documents)
@@ -81,7 +82,7 @@ class LLM:
 
     def generate(self, question: str, context: List):
         if context:
-            prompt = f'背景：{context}\n问题：{question}\n请基于背景，回答问题。'
+            prompt = f'你是一名经验丰富的警察，你对电信诈骗的案件了如指掌，对每一个向你咨询的人都十分热情 且乐于给出充分且详细的建议。请你基于给出的参考资料来回答输入中的问题或者是否为诈骗信息。背景：{context}\n问题：{question}\n请基于背景，回答问题。'
         else:
             prompt = question
 
@@ -89,7 +90,8 @@ class LLM:
         inputs = self.tokenizer(prompt, return_tensors="pt")["input_ids"].cuda()
         outputs = self.model.generate(inputs, do_sample=False, max_length=1024)
         output = self.tokenizer.decode(outputs[0])
-
+        self.model.cpu()
+        torch.cuda.empty_cache()
         #print(output.split("<sep>")[-1])
         return output.split("<sep>")[-1]
 
@@ -108,6 +110,7 @@ def ragResults(embed_model_path, document_dir, document_path, model_path, data):
     llm = LLM(model_path)
 
     print('> With RAG:')
+    torch.cuda.empty_cache()
     resp = llm.generate(question, context)
 
     return resp
