@@ -7,23 +7,23 @@ chat_history = []
 
 # 与后端连接的函数
 def call_backend_service(input_data, input_type):
-    """
-    调用后端服务，根据输入类型选择不同的接口。
-    """
-    url = "http://127.0.0.1:5000"
+    url = ""
     if input_type == "text":
-        url = "http://backend-service/api/text"  # 文本处理的后端接口
+        url = "http://127.0.0.1:5000/textMessage"  # 修正 URL
         response = requests.post(url, json={"data": input_data})
     elif input_type == "image":
-        url = "http://backend-service/api/image"  # 图像处理的后端接口
-        files = {'file': input_data}  # 直接发送文件
+        url = "http://127.0.0.1:5000/pictureMessage"  # 修正 URL
+        files = {'file': input_data}
         response = requests.post(url, files=files)
     elif input_type == "audio":
-        url = "http://backend-service/api/audio"  # 音频处理的后端接口
-        files = {'audio1': input_data[0], 'audio2': input_data[1]}  # 发送两个音频文件
+        url = "http://127.0.0.1:5000/audioMessage"  # 修正 URL
+        files = {'audio1': input_data[0], 'audio2': input_data[1]}
         response = requests.post(url, files=files)
-
-    return response.text if response.status_code == 200 else "错误: 无法处理请求"
+        
+    if response.status_code == 200:
+        return response.json()  # 返回 JSON 数据
+    else:
+        return f"错误: {response.json().get('message', '无法处理请求')}"
 
 # 设置页面标题和布局
 st.set_page_config(page_title="AI反诈助手", layout="wide")
@@ -70,15 +70,28 @@ else:
     if option == "文本对话": 
         user_input = st.text_input("输入您的消息", key="text_input")
         send_button = st.button("发送")
-        process_status = st.empty()  # 创建占位符用于显示处理状态
+        process_status = st.empty()
         if send_button and user_input:
             process_status.write("处理中...")
-            # 调用后端服务
             response = call_backend_service(user_input, "text")
-            # 更新处理状态
-            process_status.write(f"{response}")
-            chat_history.append(f"您: {user_input}")
-            chat_history.append(f"助手: {response}")
+            
+            # 检查响应是否为字典并包含'status'和'message'
+            if isinstance(response, dict):
+                if response.get('status') == 'success' and 'message' in response:
+                    message = response['message']
+                    process_status.write(message)
+                    chat_history.append(f"您: {user_input}")
+                    chat_history.append(f"助手: {message}")
+                else:
+                    # 如果返回的状态不是'success'，处理错误
+                    process_status.write(f"处理错误: {response.get('message', '未知错误')}")
+                    chat_history.append(f"您: {user_input}")
+                    chat_history.append(f"助手: {response.get('message', '未知错误')}")
+            else:
+                # 如果响应不是字典，显示错误信息
+                process_status.write("处理错误: 无法获取助手的回复")
+                chat_history.append(f"您: {user_input}")
+                chat_history.append("助手: 返回的数据格式不正确")
 
         # 聊天记录展示区域
         st.markdown("### 聊天记录")
