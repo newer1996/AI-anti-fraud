@@ -1,0 +1,5 @@
+Flask
+modelscope
+streamlit>=1.37.0
+Pillow
+Request

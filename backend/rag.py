@@ -1,4 +1,5 @@
 # 导入所需的库
+import os.path
 from typing import List
 import numpy as np
 
@@ -35,17 +36,17 @@ class VectorStoreIndex:
     class for VectorStoreIndex
     """
 
-    def __init__(self, doecment_path: List, embed_model: EmbeddingModel) -> None:
+    def __init__(self, document_dir: str, document_path: List, embed_model: EmbeddingModel) -> None:
         self.documents = []
-        for doc in doecment_path:
-            for line in open(doc, 'r', encoding='utf-8'):
+        for doc in document_path:
+            for line in open(os.path.join(document_dir, doc), 'r', encoding='utf-8'):
                 line = line.strip()
                 self.documents = self.documents + line
 
         self.embed_model = embed_model
         self.vectors = self.embed_model.get_embeddings(self.documents)
 
-        print(f'Loading {len(self.documents)} documents for {doecment_path}.')
+        print(f'Loading {len(self.documents)} documents for {document_path}.')
 
     def get_similarity(self, vector1: List[float], vector2: List[float]) -> float:
         """
@@ -92,12 +93,12 @@ class LLM:
         #print(output.split("<sep>")[-1])
         return output.split("<sep>")[-1]
 
-def ragResults(embed_model_path, doecment_path, model_path, data):
+def ragResults(embed_model_path, document_dir, document_path, model_path, data):
     print("> Create embedding model...")
     embed_model = EmbeddingModel(embed_model_path)
 
     print("> Create index...")
-    index = VectorStoreIndex(doecment_path, embed_model)
+    index = VectorStoreIndex(document_dir, document_path, embed_model)
 
     question = data
     context = index.query(question)
