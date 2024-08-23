@@ -9,16 +9,20 @@ import numpy as np
 model = models.resnet18()
 num_ftrs = model.fc.in_features
 model.fc = torch.nn.Linear(num_ftrs, 2)  # 修改最后一层为二分类
-model.load_state_dict(torch.load('C:\\Users\\予清\\Desktop\\model_61.6.pt', weights_only=True))
+model.load_state_dict(torch.load('../model_61.6.pt', weights_only=True))
 
 # 根据模型所在设备移动模型
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 model.eval()  # 设置为评估模式
 
+def convert_to_cv2(image):
+    """将PIL图像转换为OpenCV格式"""
+    return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
 def enhance_saturation(image):
     """增强图像的饱和度"""
-    img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    img_cv = convert_to_cv2(image)
     hsv_img_cv = cv2.cvtColor(img_cv, cv2.COLOR_BGR2HSV)
     hsv_img_cv[..., 1] = np.clip(hsv_img_cv[..., 1] + 50, 0, 255)  # 限制饱和度在合理范围
     saturated_img_cv = cv2.cvtColor(hsv_img_cv, cv2.COLOR_HSV2BGR)
@@ -26,13 +30,13 @@ def enhance_saturation(image):
 
 def enhance_contrast(image):
     """增强图像的对比度"""
-    img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    img_cv = convert_to_cv2(image)
     enhanced_img_cv = cv2.convertScaleAbs(img_cv, alpha=1.5, beta=0)
     return Image.fromarray(cv2.cvtColor(enhanced_img_cv, cv2.COLOR_BGR2RGB))
 
 def detect_edges(image):
     """检测图像的边缘"""
-    img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    img_cv = convert_to_cv2(image)
     gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(gray, 100, 200)
     edges_3channel = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)  # 转换为三通道图像
@@ -40,7 +44,7 @@ def detect_edges(image):
 
 def histogram_equalization(image):
     """进行直方图均衡化处理"""
-    img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    img_cv = convert_to_cv2(image)
     for i in range(3):
         img_cv[:, :, i] = cv2.equalizeHist(img_cv[:, :, i])  # 对每个通道进行均衡化
     return Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
@@ -54,7 +58,7 @@ def pixelwise_difference(original_img, processed_img):
 
 def extract_sift_features(image):
     """提取图像的SIFT特征"""
-    img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    img_cv = convert_to_cv2(image)
     gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
     sift = cv2.SIFT_create()
     keypoints, descriptors = sift.detectAndCompute(gray, None)
@@ -144,7 +148,6 @@ def analyze_image(probabilities, original_img, processed_imgs):
                 analysis_results.append(f"经过{key}处理后，Deepfake 概率有较大变化，可能存在可疑之处。")
 
     # 像素级对比和SIFT特征对比
-    processed_imgs = [enhance_saturation(original_img), enhance_contrast(original_img), detect_edges(original_img), histogram_equalization(original_img)]
     for img in processed_imgs:
         diff = pixelwise_difference(original_img, img)
         sift_features = extract_sift_features(img)
@@ -167,7 +170,7 @@ if __name__ == "__main__":
     image_path = input("请输入图片路径：").strip('\"')  # 去除多余引号
     probabilities, original_img = predict_deepfake_probability(image_path)
     
-    # 处理后的图像列表（可选）
+    # 处理后的图像列表
     processed_imgs = [
         enhance_saturation(original_img),
         enhance_contrast(original_img),
