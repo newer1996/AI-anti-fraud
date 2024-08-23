@@ -13,7 +13,7 @@ def getMessageInfo(): #传递文字信息
     llm_link = 'IEITYuan/Yuan2-2B-Mars-hf' #源大模型链接
 
     embed_model_path = './AI-ModelScope/bge-small-zh-v1___5'
-    doecment_path = './knowledge.txt'
+    doecment_path = ['./knowledge.txt']
     model_path = './IEITYuan/Yuan2-2B-Mars-hf'
 
     if not os.path.exists(vector_link.split('/')[0]):
