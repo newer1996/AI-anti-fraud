@@ -10,7 +10,7 @@ def call_backend_service(input_data, input_type):
     """
     调用后端服务，根据输入类型选择不同的接口。
     """
-    url = ""
+    url = "http://127.0.0.1:5000"
     if input_type == "text":
         url = "http://backend-service/api/text"  # 文本处理的后端接口
         response = requests.post(url, json={"data": input_data})
@@ -45,7 +45,7 @@ def login():
             st.session_state['logged_in'] = True
             st.session_state['user_name'] = username
             st.sidebar.success("登录成功！")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.sidebar.error("用户名或密码错误，请重试。")
 

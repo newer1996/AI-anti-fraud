@@ -1,8 +1,12 @@
 import os.path
-
+import logging
 from flask import Flask, request
 from modelscope import snapshot_download
 from backend.rag import ragResults
+
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -45,3 +49,4 @@ def printHello():
 
 if __name__ == '__main__':
     app.run()
+    logger.info("API service is running.")
