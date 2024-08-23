@@ -1,0 +1,4 @@
+paddlespeech
+paddlepaddle
+ffmpeg
+ffprobe
