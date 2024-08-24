@@ -35,15 +35,15 @@ def compare_audio_embeddings(embedding1, embedding2):
 def interpret_similarity_score(score):
     """Interpret the cosine similarity score."""
     if score == 1:
-        return "完全相同"
+        return "完全相同，是同一个人"
     elif 0.7 <= score < 1:
-        return "高度相似"
+        return "高度相似,大概率为同一个人"
     elif 0 <= score < 0.7:
-        return "中度相似"
+        return "中度相似，存在较大可能性非同一个人"
     elif score < 0:
-        return "负相关"
+        return "负相关，完全不是同一人"
     else:
-        return "无相似性"
+        return "无相似性，完全不是同一人"
 
 def process_audio_files(audio_file_path1, audio_file_path2):
     """
