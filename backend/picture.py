@@ -125,49 +125,50 @@ def predict_deepfake_probability(image_path):
     return {key: prob / 5 for key, prob in probabilities.items()}, original_img
 
 def analyze_image(probabilities, original_img, processed_imgs):
-    """分析图像的Deepfake概率和处理效果"""
+    """分析图像的Deepfake可能性和处理效果"""
     analysis_results = []
 
-    # 输出Deepfake概率分析
+    # 输出Deepfake可能性分析
     probability = probabilities["original"]
     if probability < 0.5:
-        analysis_results.append(f"Deepfake 概率为：{probability}。该图像较可能为真实图像。")
+        analysis_results.append("这张图片看起来很真实。")
         if probability > 0.3:
-            analysis_results.append("可能存在一些细微特征与训练集中的真实图像稍有不同，但整体上较为真实。")
+            analysis_results.append("不过，它可能与一些真实图片有细微的不同。")
     else:
-        analysis_results.append(f"Deepfake 概率为：{probability}。该图像较可能为 Deepfake 图像。")
+        analysis_results.append("这张图片可能是伪造的。")
         if probability < 0.7:
-            analysis_results.append("可能存在一些不太明显的伪造迹象，例如颜色过渡不自然或纹理稍微异常。")
+            analysis_results.append("可能有一些不太明显的伪造迹象，比如颜色看起来不自然。")
         else:
-            analysis_results.append("可能有较为明显的伪造迹象，如人物特征不连贯或背景与前景融合不佳。")
+            analysis_results.append("可能有明显的伪造迹象，比如人物的特征不连贯。")
 
-    # 分析不同处理方式后的概率差异
+    # 分析不同处理方式后的变化
     for key in probabilities:
         if key != "original":
             if abs(probability - probabilities[key]) > 0.2:
-                analysis_results.append(f"经过{key}处理后，Deepfake 概率有较大变化，可能存在可疑之处。")
+                analysis_results.append(f"经过{key}处理后，这张图片的真实感发生了很大变化，可能有问题。")
 
-    # 像素级对比和SIFT特征对比
+    # 像素级对比和特征对比
     for img in processed_imgs:
         diff = pixelwise_difference(original_img, img)
         sift_features = extract_sift_features(img)
         sift_comparison = compare_sift_features(extract_sift_features(original_img), sift_features)
-        analysis_results.append(f"{img}的像素级平均绝对差值：{diff}")
-        analysis_results.append(f"{img}的 SIFT 特征匹配数：{sift_comparison}")
+        analysis_results.append(f"与原图相比，{img}的颜色和细节差异为：{diff}。")
+        analysis_results.append(f"{img}和原图的特征相似度为：{sift_comparison}。")
 
     # 分析差异并标记可疑区域
     differences = analyze_differences(original_img, processed_imgs)
     for i, (pixel_diff, sift_count, is_suspicious) in enumerate(differences):
         if is_suspicious:
-            analysis_results.append(f"处理方法 {i + 1} 后的图像可能存在可疑区域。像素差异：{pixel_diff}，SIFT 匹配数：{sift_count}")
+            analysis_results.append(f"经过处理方法 {i + 1} 后，这张图片可能有可疑的地方。颜色和细节差异为：{pixel_diff}，特征匹配数为：{sift_count}。")
         else:
-            analysis_results.append(f"处理方法 {i + 1} 后的图像不太可能存在可疑区域。像素差异：{pixel_diff}，SIFT 匹配数：{sift_count}")
+            analysis_results.append(f"经过处理方法 {i + 1} 后，这张图片看起来没有可疑的地方。颜色和细节差异为：{pixel_diff}，特征匹配数为：{sift_count}。")
 
     return "\n".join(analysis_results)  # 返回字符串汇总结果
 
-if __name__ == "__main__":
-    # 这里可以通过外部传入图片路径进行预测和分析
-    image_path = input("请输入图片路径：").strip('\"')  # 去除多余引号
+
+def perform_analysis(image_path):
+    # 加载原始图像
+    original_img = Image.open(image_path).convert('RGB')
     probabilities, original_img = predict_deepfake_probability(image_path)
     
     # 处理后的图像列表
@@ -178,7 +179,9 @@ if __name__ == "__main__":
         histogram_equalization(original_img),
     ]
     
+    # 调用新的函数进行分析
     analysis_results = analyze_image(probabilities, original_img, processed_imgs)
+    
+    # 返回分析结果
+    return analysis_results
 
-    # 输出最终分析结果
-    print(analysis_results)
