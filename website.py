@@ -5,15 +5,17 @@ import requests  # 导入requests库用于与后端API交互
 # 定义聊天记录列表
 chat_history = []
 
-# 与后端连接的函数
 def call_backend_service(input_data, input_type):
     url = ""
     if input_type == "text":
-        url = "http://127.0.0.1:5000/textMessage"  # 修正 URL
+        url = "http://127.0.0.1:5000/textMessage"
         response = requests.post(url, json={"data": input_data})
     elif input_type == "image":
-        url = "http://127.0.0.1:5000/pictureMessage"  # 修正 URL
-        files = {'image': input_data}
+        url = "http://127.0.0.1:5000/pictureMessage"
+        file = input_data['image']
+        # 读取文件内容并准备为请求所需格式
+        files = {'image': (file.name, file)}
+        file.seek(0)
         response = requests.post(url, files=files)
     elif input_type == "audio":
         url = "http://127.0.0.1:5000/audioMessage"  # 修正 URL
@@ -103,18 +105,17 @@ else:
         uploaded_image = st.file_uploader("上传您的图像", type=["jpg", "jpeg", "png"])
         process_status = st.empty()  # 创建占位符用于显示处理状态
         if uploaded_image is not None:
-            image = Image.open(uploaded_image)
-            st.image(image, caption='上传的图像', use_column_width=True)
+            # 将上传的文件转换为字典形式，以便传递给 call_backend_service
+            files = {'image': uploaded_image}
             send_button = st.button("发送")
             backend_response = st.empty()  # 用于显示后端返回的结果
             if send_button:
                 process_status.write("处理中...")
                 # 直接调用后端服务
-                response = call_backend_service(uploaded_image, "image")
+                response = call_backend_service(files, "image")
                 # 更新处理状态
-                process_status.write(f"处理完成！")
+                process_status.write("处理完成！")
                 backend_response.text_area("分析结果：", response, height=100)
-
     # 音频输入部分
     elif option == "音频输入":
         st.subheader("🎙️ 音频输入")
