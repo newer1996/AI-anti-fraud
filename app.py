@@ -5,7 +5,7 @@ from modelscope import snapshot_download
 from PIL import Image
 from backend.rag import ragResults
 from backend.voice import process_audio_files
-from backend.picture import predict_deepfake_probability
+from backend.picture import perform_analysis
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -60,7 +60,6 @@ def getPictureInfo():
         image_file = request.files.get('image')  # 图像文件
         if not image_file:
             return jsonify({'status': 'error', 'message': '缺少图像文件'}), 400
-
         # 保存图像文件到临时目录
         temp_dir = './temp_images'
         os.makedirs(temp_dir, exist_ok=True)
@@ -81,15 +80,15 @@ def getPictureInfo():
             return jsonify({'status': 'error', 'message': '无效的图像文件'}), 400
 
         # 预测图像的Deepfake概率
-        probability = predict_deepfake_probability(image_path)
+        analysis_results = perform_analysis(image_path)
 
         # 清理临时文件
         os.remove(image_path)
 
-        return jsonify({'status': 'success', 'message': probability})
+        return jsonify({'status': 'success', 'message': analysis_results})
 
     except Exception as e:
-        logger.error(f"Error processing picture message: {e}")
+        logger.error(f"Error processing picture message: {e}")    
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
