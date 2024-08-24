@@ -13,7 +13,7 @@ def call_backend_service(input_data, input_type):
         response = requests.post(url, json={"data": input_data})
     elif input_type == "image":
         url = "http://127.0.0.1:5000/pictureMessage"  # 修正 URL
-        files = {'file': input_data}
+        files = {'image': input_data}
         response = requests.post(url, files=files)
     elif input_type == "audio":
         url = "http://127.0.0.1:5000/audioMessage"  # 修正 URL
@@ -113,7 +113,7 @@ else:
                 response = call_backend_service(uploaded_image, "image")
                 # 更新处理状态
                 process_status.write(f"处理完成！")
-                backend_response.text_area("后端返回的结果", response, height=100)
+                backend_response.text_area("分析结果：", response, height=100)
 
     # 音频输入部分
     elif option == "音频输入":
@@ -132,7 +132,7 @@ else:
                 # 调用后端服务，传递两个音频文件
                 response_audio = call_backend_service((uploaded_audio_1, uploaded_audio_2), "audio")
                 process_status_1.write("处理完成！")
-                backend_response.text_area("分析结果", response_audio, height=100)
+                backend_response.text_area("分析结果", response_audio['data'], height=100)
 
 # 显示随机问候语
 get_random_greetings()
