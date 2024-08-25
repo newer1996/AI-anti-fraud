@@ -137,7 +137,7 @@ def analyze_image(probabilities, original_img, processed_imgs):
     else:
         analysis_results.append("这张图片可能是伪造的。")
         if probability < 0.7:
-            analysis_results.append("可能有一些不太明显的伪造迹象，比如颜色看起来不自然。")
+            analysis_results.append("可能有一些不明显的伪造迹象，比如颜色看起来不自然。")
         else:
             analysis_results.append("可能有明显的伪造迹象，比如人物的特征不连贯。")
 
@@ -145,23 +145,24 @@ def analyze_image(probabilities, original_img, processed_imgs):
     for key in probabilities:
         if key != "original":
             if abs(probability - probabilities[key]) > 0.2:
-                analysis_results.append(f"经过{key}处理后，这张图片的真实感发生了很大变化，可能有问题。")
+                analysis_results.append("经过处理后，这张图片的真实感发生了很大变化，可能有问题。")
 
     # 像素级对比和特征对比
     for img in processed_imgs:
         diff = pixelwise_difference(original_img, img)
         sift_features = extract_sift_features(img)
         sift_comparison = compare_sift_features(extract_sift_features(original_img), sift_features)
-        analysis_results.append(f"与原图相比，{img}的颜色和细节差异为：{diff}。")
-        analysis_results.append(f"{img}和原图的特征相似度为：{sift_comparison}。")
+        
+        analysis_results.append("与原图相比，这张图片的颜色和细节有明显不同。")
+        analysis_results.append("这张图片和原图的特征相似度不是很高。")
 
     # 分析差异并标记可疑区域
     differences = analyze_differences(original_img, processed_imgs)
     for i, (pixel_diff, sift_count, is_suspicious) in enumerate(differences):
         if is_suspicious:
-            analysis_results.append(f"经过处理方法 {i + 1} 后，这张图片可能有可疑的地方。颜色和细节差异为：{pixel_diff}，特征匹配数为：{sift_count}。")
+            analysis_results.append("经过处理后，这张图片可能有可疑的地方。")
         else:
-            analysis_results.append(f"经过处理方法 {i + 1} 后，这张图片看起来没有可疑的地方。颜色和细节差异为：{pixel_diff}，特征匹配数为：{sift_count}。")
+            analysis_results.append("经过处理后，这张图片看起来没有可疑的地方。")
 
     return "\n".join(analysis_results)  # 返回字符串汇总结果
 
