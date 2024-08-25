@@ -22,7 +22,7 @@
 
 ## 快速启动
 
-要启动AI反诈项目，请按照以下步骤操作：
+要本地运行AI反诈项目，请按照以下步骤操作：
 
 1. 安装依赖项：
    ```bash
@@ -38,7 +38,7 @@
 
 3. 运行Web界面（使用Streamlit）：
    ```bash
-   streamlit run web1.py --server.address 127.0.0.1 --server.port 6006
+   streamlit run website.py
    ```
 
 ## 部署
