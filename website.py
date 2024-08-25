@@ -115,7 +115,7 @@ else:
                 response = call_backend_service(files, "image")
                 # 更新处理状态
                 process_status.write("处理完成！")
-                backend_response.text_area("分析结果：", response, height=100)
+                backend_response.text_area("分析结果：", response['message'], height=200)
     # 音频输入部分
     elif option == "音频输入":
         st.subheader("🎙️ 音频输入")
