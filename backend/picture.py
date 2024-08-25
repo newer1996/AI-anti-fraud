@@ -164,7 +164,8 @@ def analyze_image(probabilities, original_img, processed_imgs):
         else:
             analysis_results.append("经过处理后，这张图片看起来没有可疑的地方。")
 
-    return "\n".join(analysis_results)  # 返回字符串汇总结果
+    return "*".join(analysis_results)  # 返回字符串汇总结果
+
 
 
 def perform_analysis(image_path):
