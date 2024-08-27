@@ -9,12 +9,22 @@ import numpy as np
 model = models.resnet18()
 num_ftrs = model.fc.in_features
 model.fc = torch.nn.Linear(num_ftrs, 2)  # 修改最后一层为二分类
-model.load_state_dict(torch.load('./model/model_61.6.pt', weights_only=True))
+
+# 检查是否有可用的GPU，如果没有则使用CPU
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # 根据模型所在设备移动模型
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
-model.eval()  # 设置为评估模式
+
+# 加载模型的状态字典，如果当前设备是CPU，则将状态字典中的张量转移到CPU
+try:
+    state_dict = torch.load('./model/model_61.6.pt', map_location=torch.device('cpu'))
+    model.load_state_dict(state_dict)
+except RuntimeError as e:
+    print(f"An error occurred while loading the model state dict: {e}")
+
+# 设置为评估模式
+model.eval()
 
 def convert_to_cv2(image):
     """将PIL图像转换为OpenCV格式"""
