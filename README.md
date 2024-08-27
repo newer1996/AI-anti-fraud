@@ -22,11 +22,13 @@
 
 ## 快速启动
 
+本项目支持的python环境需在3,10以内，建议使用python3.9.19
+
 要本地运行AI反诈项目，请按照以下步骤操作：
 
 1. 安装依赖项：
    ```bash
-   Pip install -r requirement.txt
+   Pip install -r requirements.txt
    #运行在GPU环境则安装对应版本torch
    pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
    ```
