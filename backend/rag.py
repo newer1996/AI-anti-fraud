@@ -104,7 +104,9 @@ def ragResults(embed_model_path, document_dir, document_path, model_path, data):
     llm = LLM(model_path)
 
     print('> With RAG:')
-    torch.cuda.empty_cache()
+    
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     resp = llm.generate(question, context)
 
     return resp
