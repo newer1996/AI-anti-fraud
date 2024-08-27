@@ -6,7 +6,7 @@ numpy==1.26.3
 torch==2.4.0
 torchvision==0.19.0
 transformers==4.42.4
-paddlepaddle==2.4.2
+paddlepaddle
 paddlespeech
 ffmpeg
 ffprobe
