@@ -17,11 +17,10 @@ model_dir = snapshot_download("AI-ModelScope/bge-small-zh-v1.5", cache_dir='.')
 
 # 源大模型下载
 from modelscope import snapshot_download
-model_dir = snapshot_download('IEITYuan/Yuan2-2B-July-hf', cache_dir='.')
-#model_dir = snapshot_download('IEITYuan/Yuan2-2B-Mars-hf', cache_dir='.')
+#model_dir = snapshot_download('IEITYuan/Yuan2-2B-July-hf', cache_dir='.')
+model_dir = snapshot_download('IEITYuan/Yuan2-2B-Mars-hf', cache_dir='.')
 
 app = Flask(__name__)
-
 
 @app.route('/textMessage', methods=['POST'])
 def getMessageInfo():
@@ -31,14 +30,14 @@ def getMessageInfo():
             return jsonify({'status': 'error', 'message': 'Missing input data'}), 400
 
         vector_link = "AI-ModelScope/bge-small-zh-v1.5"
-        llm_link = 'IEITYuan/Yuan2-2B-July-hf'
-        #llm_link = 'IEITYuan/Yuan2-2B-Mars-hf'
+        #llm_link = 'IEITYuan/Yuan2-2B-July-hf'
+        llm_link = 'IEITYuan/Yuan2-2B-Mars-hf'
 
         embed_model_path = './AI-ModelScope/bge-small-zh-v1___5'
         document_dir = "./database"
         document_path = os.listdir(document_dir)[:10]
-        model_path = './IEITYuan/Yuan2-2B-July-hf'
-        #model_path = './IEITYuan/Yuan2-2B-Mars-hf'
+        #model_path = './IEITYuan/Yuan2-2B-July-hf'
+        model_path = './IEITYuan/Yuan2-2B-Mars-hf'
 
         '''
         if not os.path.exists(vector_link.split('/')[0]):
@@ -47,14 +46,12 @@ def getMessageInfo():
             llm_model_dir = snapshot_download(llm_link)
         '''
 
-        respMessage = ragResults(embed_model_path, document_dir, document_path, model_path, data)
+        respMessage = ragResults(embed_model_path, document_dir, document_path, model_path, data, device='cpu')
         return jsonify({'status': 'success', 'message': respMessage})
 
     except Exception as e:
         logger.error(f"Error processing request: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
-
 
 @app.route('/pictureMessage', methods=['POST'])
 def getPictureInfo():
@@ -83,7 +80,7 @@ def getPictureInfo():
             return jsonify({'status': 'error', 'message': '无效的图像文件'}), 400
 
         # 预测图像的Deepfake概率
-        analysis_results = perform_analysis(image_path)
+        analysis_results = perform_analysis(image_path, device='cpu')
 
         # 清理临时文件
         os.remove(image_path)
@@ -91,9 +88,8 @@ def getPictureInfo():
         return jsonify({'status': 'success', 'message': analysis_results})
 
     except Exception as e:
-        logger.error(f"Error processing picture message: {e}")    
+        logger.error(f"Error processing picture message: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
-
 
 @app.route('/audioMessage', methods=['POST'])
 def getAudioInfo():
@@ -116,7 +112,7 @@ def getAudioInfo():
         audio_file2.save(audio_file_path2)
 
         # 处理音频文件
-        result = process_audio_files(audio_file_path1, audio_file_path2)
+        result = process_audio_files(audio_file_path1, audio_file_path2, device='cpu')
         print(result)
         # 清理临时文件
         os.remove(audio_file_path1)
