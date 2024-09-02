@@ -17,8 +17,8 @@ model_dir = snapshot_download("AI-ModelScope/bge-small-zh-v1.5", cache_dir='.')
 
 # 源大模型下载
 from modelscope import snapshot_download
+model_dir = snapshot_download('IEITYuan/Yuan2-2B-July-hf', cache_dir='.')
 #model_dir = snapshot_download('IEITYuan/Yuan2-2B-Mars-hf', cache_dir='.')
-model_dir = snapshot_download('IEITYuan/Yuan2-2B-Mars-hf', cache_dir='.')
 
 app = Flask(__name__)
 
@@ -30,21 +30,11 @@ def getMessageInfo():
         if not data:
             return jsonify({'status': 'error', 'message': 'Missing input data'}), 400
 
-        vector_link = "AI-ModelScope/bge-small-zh-v1.5"
-        llm_link = 'IEITYuan/Yuan2-2B-Mars-hf'
-
         embed_model_path = './AI-ModelScope/bge-small-zh-v1___5'
         document_dir = "./database"
         document_path = os.listdir(document_dir)[:10]
-        model_path = './IEITYuan/Yuan2-2B-Mars-hf'
-
-        '''
-        if not os.path.exists(vector_link.split('/')[0]):
-            vector_model_dir = snapshot_download(vector_link)
-        if not os.path.exists(llm_link.split('/')[0]):
-            llm_model_dir = snapshot_download(llm_link)
-        '''
-
+        model_path = './IEITYuan/Yuan2-2B-July-hf'
+        #model_path = './IEITYuan/Yuan2-2B-Mars-hf'
         respMessage = ragResults(embed_model_path, document_dir, document_path, model_path, data)
         return jsonify({'status': 'success', 'message': respMessage})
 
